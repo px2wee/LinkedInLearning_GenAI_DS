@@ -1,0 +1,28 @@
+import pandas as pd
+import scipy.stats as stats
+
+data = {
+    'responseID': [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029, 1030, 1031],
+    'region': ['East', 'Central', 'West', 'East', 'Central', 'West', 'East', 'Central', 'West', 'East', 'Central', 'West', 'East', 'Central', 'West', 'East', 'Central', 'West', 'East', 'Central', 'West', 'East', 'Central', 'West', 'East', 'Central', 'West', 'East', 'Central', 'West'],
+    'date': ['2024-05-01', '2024-05-01', '2024-05-01', '2024-05-02', '2024-05-02', '2024-05-02', '2024-05-03', '2024-05-03', '2024-05-03', '2024-05-04', '2024-05-04', '2024-05-04', '2024-05-05', '2024-05-05', '2024-05-05', '2024-05-06', '2024-05-06', '2024-05-06', '2024-05-07', '2024-05-07', '2024-05-07', '2024-05-08', '2024-05-08', '2024-05-08', '2024-05-09', '2024-05-09', '2024-05-09', '2024-05-10', '2024-05-10', '2024-05-10'],
+    'leads': [12, 8, 6, 15, 11, 9, 10, 7, 13, 18, 14, 5, 15, 12, 8, 6, 15, 11, 9, 10, 7, 13, 18, 14, 5, 24, 28, 19, 28, 31]
+}
+
+df = pd.DataFrame(data)
+
+# Group data by region
+regions = df['region'].unique()
+lead_values = [df[df['region'] == region]['leads'] for region in regions]
+
+# Perform ANOVA test
+f_stat, p_value = stats.f_oneway(*lead_values)
+
+# Print results
+print(f"ANOVA F-statistic: {f_stat}")
+print(f"ANOVA p-value: {p_value}")
+
+# Interpretation
+if p_value < 0.05:
+    print("There is a significant difference in the mean number of leads across regions.")
+else:
+    print("There is no significant difference in the mean number of leads across regions.")
