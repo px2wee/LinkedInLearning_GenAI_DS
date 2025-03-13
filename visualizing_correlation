@@ -1,0 +1,33 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Define the data
+data = {
+    "Sale Price": [
+        200000, 204500, 209000, 213500, 218000, 222500, 227000, 231500, 236000, 240500,
+        245000, 249500, 254000, 258500, 263000, 267500, 207250, 211750, 216250, 220750,
+        225250, 229750, 234250, 238750, 243250, 247750, 252250, 256750, 214750, 219250
+    ],
+    "Price per Sq.Ft.": [
+        150, 153, 156, 159, 162, 165, 168, 171, 174, 177,
+        180, 183, 186, 189, 192, 195, 159, 162, 165, 168,
+        171, 174, 177, 180, 183, 186, 189, 192, 165, 168
+    ]
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Calculate the correlation coefficient between Sale Price and Price per Sq.Ft.
+correlation = df["Sale Price"].corr(df["Price per Sq.Ft."])
+
+# Output the correlation value
+print(f"Correlation between Sale Price and Price per Sq.Ft.: {correlation:.2f}")
+
+# Optional: Visualize the relationship with a scatter plot
+plt.scatter(df["Price per Sq.Ft."], df["Sale Price"], color='blue')
+plt.title("Sale Price vs. Price per Sq.Ft.")
+plt.xlabel("Price per Sq.Ft.")
+plt.ylabel("Sale Price")
+plt.show()
