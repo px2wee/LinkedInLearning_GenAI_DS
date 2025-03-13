@@ -1,0 +1,36 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Define the data
+data = {
+    'Date of Admission': [
+        '1-May', '1-May', '1-May', '1-May', '1-May', '1-May', '1-May', '1-May', '1-May', '1-May', '1-May',
+        '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May', '2-May',
+        '3-May', '3-May', '3-May', '3-May', '3-May', '3-May', '3-May', '3-May', '3-May', '3-May', '3-May'
+    ],
+    'Type of Admission': [
+        'Urgent', 'Emergency', 'Emergency', 'Emergency', 'Emergency', 'Trauma', 'Trauma', 'Trauma', 'Trauma', 'Trauma', 'Trauma',
+        'Trauma', 'Trauma', 'Emergency', 'Emergency', 'Trauma', 'Trauma', 'Urgent', 'Trauma', 'Emergency', 'Trauma', 'Urgent', 'Trauma', 'Emergency', 'Urgent', 'Emergency', 'Urgent', 'Trauma', 'Emergency', 'Trauma',
+        'Trauma', 'Trauma', 'Trauma', 'Emergency', 'Emergency', 'Trauma', 'Emergency', 'Trauma', 'Emergency', 'Trauma', 'Emergency'
+    ]
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Group by 'Date of Admission' and 'Type of Admission' to count occurrences
+admission_counts = df.groupby(['Date of Admission', 'Type of Admission']).size().unstack(fill_value=0)
+
+# Plot the data
+admission_counts.plot(kind='bar', stacked=True, figsize=(10, 6))
+
+# Customize the plot
+plt.title('Composition of Admission Types Over Days')
+plt.xlabel('Date of Admission')
+plt.ylabel('Count of Admissions')
+plt.xticks(rotation=45)
+plt.legend(title='Type of Admission')
+plt.tight_layout()
+
+# Show the plot
+plt.show()
