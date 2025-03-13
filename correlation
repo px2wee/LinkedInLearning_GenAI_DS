@@ -1,0 +1,43 @@
+import pandas as pd
+import scipy.stats as stats
+
+# Define the data
+data = {
+    'disposable_income': [
+        605, 595, 578, 586, 612, 595, 578, 586, 612, 605,
+        595, 578, 586, 612, 605, 595, 578, 586, 612, 605,
+        595, 578, 586, 612, 605, 595, 578, 586, 612, 605,
+        595, 578, 586, 612, 605, 595, 578, 586, 612, 605,
+        595, 578, 586, 612, 605, 595, 578, 586, 612, 605
+    ],
+    'num_restaurants_visits': [
+        5, 5, 4, 5, 6, 5, 4, 5, 6, 5,
+        5, 4, 5, 6, 5, 5, 4, 5, 6, 5,
+        5, 4, 5, 6, 5, 5, 4, 5, 6, 5,
+        5, 4, 5, 6, 5, 5, 4, 5, 6, 5,
+        5, 4, 5, 6, 5, 5, 4, 5, 6, 5
+    ]
+}
+
+df = pd.DataFrame(data)
+
+# Perform Shapiro-Wilk test for normality
+for column in df.columns:
+    stat, p_value = stats.shapiro(df[column])
+    print(f"{column} - Shapiro-Wilk Test Statistic: {stat}, p-value: {p_value}")
+    
+    if p_value < 0.05:
+        print(f"{column} does not follow a normal distribution.")
+    else:
+        print(f"{column} follows a normal distribution.")
+
+# Perform Spearman correlation test
+spearman_corr, spearman_p = stats.spearmanr(df['disposable_income'], df['num_restaurants_visits'])
+print(f"Spearman Correlation Coefficient: {spearman_corr}")
+print(f"Spearman p-value: {spearman_p}")
+
+# Interpretation
+if spearman_p < 0.05:
+    print("There is a significant correlation between disposable income and number of restaurant visits.")
+else:
+    print("There is no significant correlation between disposable income and number of restaurant visits.")
