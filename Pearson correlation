@@ -1,0 +1,52 @@
+import pandas as pd
+import numpy as np
+import random
+from datetime import datetime, timedelta
+import scipy.stats as stats
+
+# Define product categories and names
+categories = {
+    "Dairy": ["Milk", "Cheese", "Yogurt"],
+    "Bakery": ["Bread", "Croissant", "Bagel"],
+    "Produce": ["Apple", "Banana", "Carrot"],
+    "Beverages": ["Juice", "Soda", "Water"]
+}
+
+# Generate dataset
+num_rows = 1000
+start_date = datetime(2024, 1, 1)
+
+data = []
+
+for _ in range(num_rows):
+    date_sold = start_date + timedelta(days=random.randint(0, 29))
+    category = random.choice(list(categories.keys()))
+    product_name = random.choice(categories[category])
+    cost_per_unit = max(0.5, np.random.normal(2.5, 0.5))  # Normal distribution
+    sale_price_per_unit = max(cost_per_unit * np.random.normal(1.2, 0.1), cost_per_unit + 0.1)  # Ensure profit
+    units_sold = random.randint(1, 20)
+    total_cost = cost_per_unit * units_sold
+    total_revenue = sale_price_per_unit * units_sold
+    
+    data.append([date_sold.date(), product_name, category, cost_per_unit, sale_price_per_unit, units_sold, total_cost, total_revenue])
+
+# Create DataFrame
+df = pd.DataFrame(data, columns=["Date Sold", "Product Name", "Product Category", "Cost per Unit", "Sale Price per Unit", "Units Sold", "Total Cost", "Total Revenue"])
+
+# Save to CSV
+df.to_csv("grocery_sales.csv", index=False)
+print("Dataset created and saved as grocery_sales.csv")
+
+# Perform Shapiro-Wilk test for normality
+for column in ["Sale Price per Unit", "Total Revenue"]:
+    stat, p_value = stats.shapiro(df[column])
+    print(f"{column} - Shapiro-Wilk Test Statistic: {stat}, p-value: {p_value}")
+    
+    if p_value < 0.05:
+        print(f"{column} does not follow a normal distribution.")
+    else:
+        print(f"{column} follows a normal distribution.")
+
+# Calculate Pearson correlation coefficient
+corr_coeff, corr_p_value = stats.pearsonr(df["Sale Price per Unit"], df["Total Revenue"])
+print(f"Pearson Correlation Coefficient: {corr_coeff}, p-value: {corr_p_value}")
