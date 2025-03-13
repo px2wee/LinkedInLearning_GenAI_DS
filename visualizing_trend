@@ -1,0 +1,51 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Define the dataset
+data = {
+    'Date of Sale': [
+        '2024-01-15', '2024-03-01', '2024-04-16', '2024-06-01', '2024-07-17',
+        '2024-09-01', '2024-10-17', '2024-12-02', '2025-01-17', '2025-03-04',
+        '2025-04-19', '2025-06-04', '2025-07-20', '2025-09-04', '2025-10-20',
+        '2025-12-05', '2024-02-14', '2024-04-30', '2024-07-01', '2024-09-16',
+        '2024-11-01', '2025-01-01', '2025-03-18', '2025-05-03', '2025-07-18',
+        '2025-09-02', '2025-11-17', '2025-12-31', '2024-05-15', '2024-08-30'
+    ],
+    'Sale Price': [
+        200000, 204500, 209000, 213500, 218000,
+        222500, 227000, 231500, 236000, 240500,
+        245000, 249500, 254000, 258500, 263000,
+        267500, 207250, 211750, 216250, 220750,
+        225250, 229750, 234250, 238750, 243250,
+        247750, 252250, 256750, 214750, 219250
+    ],
+    'Price per Sq.Ft.': [
+        150, 153, 156, 159, 162,
+        165, 168, 171, 174, 177,
+        180, 183, 186, 189, 192,
+        195, 159, 162, 165, 168,
+        171, 174, 177, 180, 183,
+        186, 189, 192, 165, 168
+    ]
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+df['Date of Sale'] = pd.to_datetime(df['Date of Sale'])
+
+# Sort data by date
+df = df.sort_values(by='Date of Sale')
+
+# Plot trends
+plt.figure(figsize=(12, 6))
+sns.lineplot(x='Date of Sale', y='Sale Price', data=df, marker='o', label='Sale Price')
+sns.lineplot(x='Date of Sale', y='Price per Sq.Ft.', data=df, marker='s', label='Price per Sq.Ft.', color='red')
+
+plt.xlabel('Date of Sale')
+plt.ylabel('Value')
+plt.title('Trends in Sale Price and Price per Sq.Ft.')
+plt.legend()
+plt.xticks(rotation=45)
+plt.grid()
+plt.show()
