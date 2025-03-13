@@ -37,15 +37,27 @@ df['Date of Sale'] = pd.to_datetime(df['Date of Sale'])
 # Sort data by date
 df = df.sort_values(by='Date of Sale')
 
-# Plot trends
-plt.figure(figsize=(12, 6))
-sns.lineplot(x='Date of Sale', y='Sale Price', data=df, marker='o', label='Sale Price')
-sns.lineplot(x='Date of Sale', y='Price per Sq.Ft.', data=df, marker='s', label='Price per Sq.Ft.', color='red')
+# Create subplots
+fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 10))
 
-plt.xlabel('Date of Sale')
-plt.ylabel('Value')
-plt.title('Trends in Sale Price and Price per Sq.Ft.')
-plt.legend()
-plt.xticks(rotation=45)
-plt.grid()
+# Plot Sale Price
+sns.lineplot(x='Date of Sale', y='Sale Price', data=df, marker='o', ax=axes[0], label='Sale Price')
+axes[0].set_xlabel('Date of Sale')
+axes[0].set_ylabel('Sale Price')
+axes[0].set_title('Trend in Sale Price')
+axes[0].legend()
+axes[0].tick_params(axis='x', rotation=45)
+axes[0].grid()
+
+# Plot Price per Sq.Ft.
+sns.lineplot(x='Date of Sale', y='Price per Sq.Ft.', data=df, marker='s', ax=axes[1], label='Price per Sq.Ft.', color='red')
+axes[1].set_xlabel('Date of Sale')
+axes[1].set_ylabel('Price per Sq.Ft.')
+axes[1].set_title('Trend in Price per Sq.Ft.')
+axes[1].legend()
+axes[1].tick_params(axis='x', rotation=45)
+axes[1].grid()
+
+# Adjust layout and show plot
+plt.tight_layout()
 plt.show()
