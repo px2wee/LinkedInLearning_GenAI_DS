@@ -1,0 +1,29 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Data
+discounts = np.array([0, 5, 10, 15, 20, 25, 30]).reshape(-1, 1)
+units_sold = np.array([10000, 12000, 12900, 16600, 18350, 19500, 22100])
+
+# Create and fit the model
+model = LinearRegression()
+model.fit(discounts, units_sold)
+
+# Get the slope and intercept
+slope = model.coef_[0]
+intercept = model.intercept_
+
+print(f"Linear Regression Equation: y = {slope:.2f}x + {intercept:.2f}")
+
+# Predict values
+predicted_units_sold = model.predict(discounts)
+
+# Plot the data
+plt.scatter(discounts, units_sold, color='blue', label='Actual Data')
+plt.plot(discounts, predicted_units_sold, color='red', linestyle='--', label='Regression Line')
+plt.xlabel('Discount (%)')
+plt.ylabel('Units Sold')
+plt.title('Linear Regression: Discounts vs Units Sold')
+plt.legend()
+plt.show()
