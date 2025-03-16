@@ -1,0 +1,73 @@
+import sqlite3
+import random
+from datetime import datetime, timedelta
+
+def create_iot_database(db_name="iot_data.db"):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    
+    # Create sensor table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS sensor (
+            sensor_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sensor_type TEXT NOT NULL,
+            installation_date TEXT NOT NULL,
+            manufacturer TEXT NOT NULL
+        )
+    ''')
+    
+    # Create sensor_reading table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS sensor_reading (
+            reading_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sensor_id INTEGER NOT NULL,
+            temperature_celsius REAL NOT NULL,
+            relative_humidity REAL NOT NULL,
+            pressure_millibars REAL NOT NULL,
+            FOREIGN KEY (sensor_id) REFERENCES sensor(sensor_id)
+        )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+def populate_iot_data(db_name="iot_data.db", num_sensors=50, num_readings=1000):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    
+    sensor_types = ["Temperature", "Humidity", "Pressure", "Multi-Sensor"]
+    manufacturers = ["SensorTech", "IoT Inc.", "Smart Devices", "EnviroSense"]
+    
+    # Insert sensors
+    sensor_ids = []
+    for _ in range(num_sensors):
+        sensor_type = random.choice(sensor_types)
+        installation_date = (datetime.today() - timedelta(days=random.randint(0, 730))).strftime("%Y-%m-%d")
+        manufacturer = random.choice(manufacturers)
+        
+        cursor.execute('''
+            INSERT INTO sensor (sensor_type, installation_date, manufacturer)
+            VALUES (?, ?, ?)
+        ''', (sensor_type, installation_date, manufacturer))
+        
+        sensor_ids.append(cursor.lastrowid)
+    
+    # Insert sensor readings
+    for _ in range(num_readings):
+        sensor_id = random.choice(sensor_ids)
+        temperature = round(random.uniform(-10.0, 50.0), 2)
+        humidity = round(random.uniform(10.0, 90.0), 2)
+        pressure = round(random.uniform(900.0, 1100.0), 2)
+        
+        cursor.execute('''
+            INSERT INTO sensor_reading (sensor_id, temperature_celsius, relative_humidity, pressure_millibars)
+            VALUES (?, ?, ?, ?)
+        ''', (sensor_id, temperature, humidity, pressure))
+    
+    conn.commit()
+    conn.close()
+
+if __name__ == "__main__":
+    create_iot_database()
+    populate_iot_data()
+    print("IoT database created and populated successfully.")
