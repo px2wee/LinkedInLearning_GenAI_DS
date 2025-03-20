@@ -1,0 +1,55 @@
+import pandas as pd
+import random
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+def correct_missing_values(df):
+    # Replace missing values with mean of the column
+    for col in ['Variable_1', 'Variable_2', 'Variable_3', 'Variable_4']:
+        df[col] = df[col].fillna(df[col].mean())
+    return df
+
+def train_classification_model(file_path="/content/sample_data/generated_dataset_missing_data.csv"):
+    # Load dataset
+    df = pd.read_csv(file_path)
+    
+    # Correct missing values
+    df = correct_missing_values(df)
+    
+    # Define features and labels
+    X = df[['Variable_1', 'Variable_2', 'Variable_3', 'Variable_4']]
+    y = df['Category']
+    
+    # Split data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Train a Random Forest classifier
+    rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf_model.fit(X_train, y_train)
+    y_pred_rf = rf_model.predict(X_test)
+    
+    # Train an XGBoost classifier
+    xgb_model = XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', random_state=42)
+    xgb_model.fit(X_train, y_train)
+    y_pred_xgb = xgb_model.predict(X_test)
+    
+    # Evaluate Random Forest model
+    accuracy_rf = accuracy_score(y_test, y_pred_rf)
+    report_rf = classification_report(y_test, y_pred_rf)
+    print(f"Random Forest Model Accuracy: {accuracy_rf:.2f}")
+    print("Random Forest Classification Report:")
+    print(report_rf)
+    
+    # Evaluate XGBoost model
+    accuracy_xgb = accuracy_score(y_test, y_pred_xgb)
+    report_xgb = classification_report(y_test, y_pred_xgb)
+    print(f"XGBoost Model Accuracy: {accuracy_xgb:.2f}")
+    print("XGBoost Classification Report:")
+    print(report_xgb)
+    
+    return rf_model, xgb_model
+
+if __name__ == "__main__":
+    train_classification_model()
