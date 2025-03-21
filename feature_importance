@@ -1,0 +1,81 @@
+import pandas as pd
+import random
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+def correct_missing_values(df):
+    # Replace missing values with mean of the column
+    for col in ['Variable_1', 'Variable_2', 'Variable_3', 'Variable_4']:
+        df[col] = df[col].fillna(df[col].mean())
+    return df
+
+def train_classification_model(file_path="/content/sample_data/generated_dataset.csv"):
+    # Load dataset
+    df = pd.read_csv(file_path)
+
+    # Correct missing values
+    df = correct_missing_values(df)
+
+    # Define features and labels
+    X = df[['Variable_1', 'Variable_2', 'Variable_3', 'Variable_4']]
+    y = df['Category']
+
+    # Split data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Grid search for optimal Random Forest parameters
+    rf_params = {
+        'n_estimators': [100, 200],
+        'max_depth': [None, 10, 20],
+        'min_samples_split': [2, 5],
+        'min_samples_leaf': [1, 2]
+    }
+    rf_grid = GridSearchCV(RandomForestClassifier(random_state=42), rf_params, cv=3, scoring='accuracy')
+    rf_grid.fit(X_train, y_train)
+    best_rf_model = rf_grid.best_estimator_
+    y_pred_rf = best_rf_model.predict(X_test)
+
+    # Train an XGBoost classifier
+    xgb_model = XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', random_state=42)
+    xgb_model.fit(X_train, y_train)
+    y_pred_xgb = xgb_model.predict(X_test)
+
+    # Train a four-layer Neural Network classifier with 100 epochs
+    nn_model = MLPClassifier(hidden_layer_sizes=(128, 32, 16, 8), max_iter=100, random_state=42)
+    nn_model.fit(X_train, y_train)
+    y_pred_nn = nn_model.predict(X_test)
+
+    # Evaluate Random Forest model
+    accuracy_rf = accuracy_score(y_test, y_pred_rf)
+    report_rf = classification_report(y_test, y_pred_rf)
+    print("Best Random Forest Parameters:", rf_grid.best_params_)
+    print(f"Random Forest Model Accuracy: {accuracy_rf:.2f}")
+    print("Random Forest Classification Report:")
+    print(report_rf)
+
+    # Evaluate XGBoost model
+    accuracy_xgb = accuracy_score(y_test, y_pred_xgb)
+    report_xgb = classification_report(y_test, y_pred_xgb)
+    print(f"XGBoost Model Accuracy: {accuracy_xgb:.2f}")
+    print("XGBoost Classification Report:")
+    print(report_xgb)
+
+    # Evaluate Neural Network model
+    accuracy_nn = accuracy_score(y_test, y_pred_nn)
+    report_nn = classification_report(y_test, y_pred_nn)
+    print(f"Neural Network Model Accuracy: {accuracy_nn:.2f}")
+    print("Neural Network Classification Report:")
+    print(report_nn)
+
+        # Report feature importances from Random Forest
+    print("Random Forest Feature Importances:")
+    feature_importances = pd.Series(best_rf_model.feature_importances_, index=X.columns)
+    print(feature_importances.sort_values(ascending=False))
+
+    return best_rf_model, xgb_model, nn_model
+
+if __name__ == "__main__":
+    train_classification_model()
