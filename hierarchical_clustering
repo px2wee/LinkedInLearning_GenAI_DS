@@ -1,0 +1,53 @@
+import pandas as pd
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+from scipy.cluster.hierarchy import dendrogram, linkage
+
+# Set seed for reproducibility
+random.seed(42)
+np.random.seed(42)
+
+# Load dataset
+df = pd.read_csv("/content/customer_segmentation_dataset.csv")
+
+# Encode categorical variables
+label_encoders = {}
+categorical_cols = ['gender', 'ever_married', 'graduated', 'profession', 'spending_score']
+for col in categorical_cols:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    label_encoders[col] = le
+
+# Drop ID column for clustering
+X = df.drop(columns=['ID'])
+
+# Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Plot dendrogram
+linked = linkage(X_scaled, method='ward')
+plt.figure(figsize=(10, 6))
+dendrogram(linked, truncate_mode='lastp', p=20)
+plt.title('Hierarchical Clustering Dendrogram')
+plt.xlabel('Cluster Size')
+plt.ylabel('Distance')
+plt.tight_layout()
+plt.show()
+
+# Apply Agglomerative Clustering
+agglo = AgglomerativeClustering(n_clusters=4)
+df['cluster'] = agglo.fit_predict(X_scaled)
+
+# Evaluate clustering
+num_clusters = len(set(df['cluster']))
+sil_score = silhouette_score(X_scaled, df['cluster']) if num_clusters > 1 else 'N/A'
+
+print(f"\nNumber of clusters: {num_clusters}")
+print("Cluster distribution:")
+print(df['cluster'].value_counts())
+print(f"Silhouette Score: {sil_score}")
