@@ -1,0 +1,66 @@
+import pandas as pd
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# Set seed for reproducibility
+random.seed(42)
+np.random.seed(42)
+
+# Load dataset
+df = pd.read_csv("/content/customer_segmentation_dataset.csv")
+
+# Encode categorical variables
+label_encoders = {}
+categorical_cols = ['gender', 'ever_married', 'graduated', 'profession', 'spending_score']
+for col in categorical_cols:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    label_encoders[col] = le
+
+# Drop ID column for clustering
+X = df.drop(columns=['ID'])
+
+# Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Elbow Method to visualize inertia
+inertias = []
+k_values = range(1, 11)
+for k in k_values:
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    kmeans.fit(X_scaled)
+    inertias.append(kmeans.inertia_)
+
+plt.figure(figsize=(8, 4))
+plt.plot(k_values, inertias, marker='o')
+plt.title('Elbow Method For Optimal k')
+plt.xlabel('Number of clusters')
+plt.ylabel('Inertia')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# Determine the optimal number of clusters using silhouette score
+best_score = -1
+best_k = 2
+for k in range(2, 11):
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    labels = kmeans.fit_predict(X_scaled)
+    score = silhouette_score(X_scaled, labels)
+    print(f"Silhouette Score for k={k}: {score:.4f}")
+    if score > best_score:
+        best_score = score
+        best_k = k
+
+# Final clustering with best_k
+kmeans = KMeans(n_clusters=best_k, random_state=42, n_init=10)
+df['cluster'] = kmeans.fit_predict(X_scaled)
+
+print(f"\nOptimal number of clusters: {best_k}")
+print("Cluster distribution:")
+print(df['cluster'].value_counts())
