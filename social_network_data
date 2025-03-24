@@ -35,5 +35,14 @@ plt.tight_layout()
 plt.show()
 
 # Save edges to CSV
+
+# Identify top 3 most followed users
+in_degrees = G.in_degree()
+sorted_followees = sorted(in_degrees, key=lambda x: x[1], reverse=True)
+top_3_followed = sorted_followees[:3]
+print("Top 3 most followed users:")
+for user, count in top_3_followed:
+    print(f"{user}: {count} followers")
+
 df_edges.to_csv("social_network_relationships.csv", index=False)
-print("\nDataset saved as 'social_network_relationships.csv'")
+print("Dataset saved as 'social_network_relationships.csv'")
