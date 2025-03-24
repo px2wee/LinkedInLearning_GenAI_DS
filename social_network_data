@@ -1,0 +1,39 @@
+import pandas as pd
+import random
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Generate more realistic usernames
+first_names = ['alex', 'jordan', 'casey', 'morgan', 'taylor', 'riley', 'jamie', 'drew', 'sam', 'chris']
+last_names = ['smith', 'johnson', 'lee', 'walker', 'allen', 'young', 'scott', 'adams', 'baker', 'campbell']
+num_users = 50
+usernames = [f"{random.choice(first_names)}_{random.choice(last_names)}{random.randint(1, 99)}" for _ in range(num_users)]
+usernames = list(set(usernames))[:num_users]  # Ensure uniqueness
+
+# Generate follows edges
+num_edges = 200
+edges = set()
+while len(edges) < num_edges:
+    follower = random.choice(usernames)
+    followee = random.choice(usernames)
+    if follower != followee:
+        edges.add((follower, followee))
+
+# Create DataFrame for edges
+df_edges = pd.DataFrame(list(edges), columns=['follower', 'followee'])
+
+# Build graph using NetworkX
+G = nx.DiGraph()
+G.add_edges_from(edges)
+
+# Draw graph
+plt.figure(figsize=(12, 8))
+pos = nx.spring_layout(G, k=0.5)
+nx.draw(G, pos, with_labels=True, node_size=500, node_color='skyblue', edge_color='gray', arrows=True)
+plt.title("Social Network Follows Graph")
+plt.tight_layout()
+plt.show()
+
+# Save edges to CSV
+df_edges.to_csv("social_network_relationships.csv", index=False)
+print("\nDataset saved as 'social_network_relationships.csv'")
