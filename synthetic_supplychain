@@ -1,0 +1,72 @@
+import pandas as pd
+import random
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Supply chain entities
+raw_material_providers = [f"RawProvider_{i}" for i in range(1, 6)]
+component_manufacturers = [f"ComponentManuf_{i}" for i in range(1, 6)]
+finished_product_manufacturers = [f"FinishedManuf_{i}" for i in range(1, 4)]
+distributors = [f"Distributor_{i}" for i in range(1, 4)]
+retailers = [f"Retailer_{i}" for i in range(1, 5)]
+customers = [f"Customer_{i}" for i in range(1, 11)]
+
+# Initialize graph
+G = nx.DiGraph()
+
+# Add nodes
+G.add_nodes_from(raw_material_providers, layer='RawMaterialProvider')
+G.add_nodes_from(component_manufacturers, layer='ComponentManufacturer')
+G.add_nodes_from(finished_product_manufacturers, layer='FinishedManufacturer')
+G.add_nodes_from(distributors, layer='Distributor')
+G.add_nodes_from(retailers, layer='Retailer')
+G.add_nodes_from(customers, layer='Customer')
+
+# Connect supply chain
+for rmp in raw_material_providers:
+    targets = random.sample(component_manufacturers, k=2)
+    for target in targets:
+        G.add_edge(rmp, target)
+
+for cm in component_manufacturers:
+    targets = random.sample(finished_product_manufacturers, k=2)
+    for target in targets:
+        G.add_edge(cm, target)
+
+for fm in finished_product_manufacturers:
+    targets = random.sample(distributors, k=2)
+    for target in targets:
+        G.add_edge(fm, target)
+
+for d in distributors:
+    targets = random.sample(retailers, k=2)
+    for target in targets:
+        G.add_edge(d, target)
+
+for r in retailers:
+    targets = random.sample(customers, k=3)
+    for target in targets:
+        G.add_edge(r, target)
+
+# Draw the graph
+plt.figure(figsize=(16, 10))
+pos = nx.spring_layout(G, k=0.7, seed=42)
+colors = {
+    'RawMaterialProvider': 'saddlebrown',
+    'ComponentManufacturer': 'orange',
+    'FinishedManufacturer': 'gold',
+    'Distributor': 'skyblue',
+    'Retailer': 'limegreen',
+    'Customer': 'pink'
+}
+node_colors = [colors[G.nodes[node]['layer']] for node in G.nodes]
+nx.draw(G, pos, with_labels=True, node_size=700, node_color=node_colors, edge_color='gray', arrows=True)
+plt.title("Synthetic Supply Chain Network")
+plt.tight_layout()
+plt.show()
+
+# Export to CSV
+edges = list(G.edges())
+df_edges = pd.DataFrame(edges, columns=['source', 'target'])
+df_edges.to_csv("synthetic_supply_chain_edges.csv", index=False)
+print("\nSynthetic supply chain graph saved as 'synthetic_supply_chain_edges.csv'")
