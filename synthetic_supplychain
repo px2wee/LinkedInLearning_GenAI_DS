@@ -48,9 +48,38 @@ for r in retailers:
     for target in targets:
         G.add_edge(r, target)
 
+# Define y-levels for layers to enforce top-to-bottom layout
+layer_y = {
+    'RawMaterialProvider': 5,
+    'ComponentManufacturer': 4,
+    'FinishedManufacturer': 3,
+    'Distributor': 2,
+    'Retailer': 1,
+    'Customer': 0
+}
+
+# Assign positions manually
+pos = {}
+layer_nodes = {
+    'RawMaterialProvider': raw_material_providers,
+    'ComponentManufacturer': component_manufacturers,
+    'FinishedManufacturer': finished_product_manufacturers,
+    'Distributor': distributors,
+    'Retailer': retailers,
+    'Customer': customers
+}
+
+for layer, nodes in layer_nodes.items():
+    x_spacing = 2
+    y = layer_y[layer]
+    num_nodes = len(nodes)
+    total_width = (num_nodes - 1) * x_spacing
+    x_start = -total_width / 2
+    for i, node in enumerate(nodes):
+        pos[node] = (x_start + i * x_spacing, y)
+
 # Draw the graph
-plt.figure(figsize=(16, 10))
-pos = nx.spring_layout(G, k=0.7, seed=42)
+plt.figure(figsize=(18, 10))
 colors = {
     'RawMaterialProvider': 'saddlebrown',
     'ComponentManufacturer': 'orange',
@@ -59,9 +88,14 @@ colors = {
     'Retailer': 'limegreen',
     'Customer': 'pink'
 }
-node_colors = [colors[G.nodes[node]['layer']] for node in G.nodes]
+node_colors = [colors[G.nodes[node]['layer']] for node in G.nodes()]
 nx.draw(G, pos, with_labels=True, node_size=700, node_color=node_colors, edge_color='gray', arrows=True)
-plt.title("Synthetic Supply Chain Network")
+
+# Create legend
+for layer, color in colors.items():
+    plt.scatter([], [], c=color, label=layer)
+plt.legend(scatterpoints=1, frameon=True, labelspacing=1, loc='upper left')
+plt.title("Synthetic Supply Chain Network (Top-to-Bottom Layout)")
 plt.tight_layout()
 plt.show()
 
