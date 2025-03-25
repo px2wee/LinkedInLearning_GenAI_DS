@@ -104,3 +104,13 @@ edges = list(G.edges())
 df_edges = pd.DataFrame(edges, columns=['source', 'target'])
 df_edges.to_csv("synthetic_supply_chain_edges.csv", index=False)
 print("\nSynthetic supply chain graph saved as 'synthetic_supply_chain_edges.csv'")
+
+# Function to find nodes with highest betweenness centrality
+def top_betweenness_nodes(graph, top_n=5):
+    centrality = nx.betweenness_centrality(graph)
+    sorted_nodes = sorted(centrality.items(), key=lambda x: x[1], reverse=True)
+    print(f"Top {top_n} nodes by betweenness centrality:")
+    for node, score in sorted_nodes[:top_n]:
+        print(f"{node}: {score:.4f}")
+
+top_betweenness_nodes(G)
