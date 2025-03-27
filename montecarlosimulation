@@ -57,3 +57,7 @@ plt.xlabel("Total Cost Over {} Days".format(simulation_days))
 plt.ylabel("Frequency")
 plt.tight_layout()
 plt.show()
+
+# Print mean total daily cost
+mean_cost = np.mean(total_costs)
+print(f"Mean Total Cost Over {simulation_days} Days: ${mean_cost:.2f}")
