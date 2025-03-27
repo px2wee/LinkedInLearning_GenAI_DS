@@ -1,0 +1,59 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Parameters
+starting_inventory = 100
+avg_daily_demand = 20
+demand_std_dev = 5
+lead_time = 3  # days to restock
+restock_amount = 100
+simulation_days = 60
+num_simulations = 1000
+holding_cost_per_unit = 0.1
+out_of_stock_cost_per_unit = 5.0
+
+# Run Monte Carlo Simulation
+total_costs = []
+
+for sim in range(num_simulations):
+    inventory = starting_inventory
+    on_order = []  # list of (day_due, quantity)
+    daily_costs = []
+
+    for day in range(simulation_days):
+        # Check for incoming orders
+        for order in on_order[:]:
+            if order[0] == day:
+                inventory += order[1]
+                on_order.remove(order)
+
+        # Simulate demand
+        demand = max(0, int(np.random.normal(avg_daily_demand, demand_std_dev)))
+
+        # Fulfill demand
+        fulfilled = min(inventory, demand)
+        inventory -= fulfilled
+        unfulfilled = demand - fulfilled
+
+        # Place restock order if inventory is low and no pending order
+        if inventory < avg_daily_demand and not any(order[0] > day for order in on_order):
+            on_order.append((day + lead_time, restock_amount))
+
+        # Calculate costs
+        holding_cost = inventory * holding_cost_per_unit
+        stockout_cost = unfulfilled * out_of_stock_cost_per_unit
+        total_cost = holding_cost + stockout_cost
+        daily_costs.append(total_cost)
+
+    total_costs.append(sum(daily_costs))
+
+# Visualization
+sns.set(style="whitegrid")
+plt.figure(figsize=(10, 6))
+sns.histplot(total_costs, kde=True, bins=30, color='skyblue')
+plt.title("Distribution of Total Inventory Costs from Monte Carlo Simulation")
+plt.xlabel("Total Cost Over {} Days".format(simulation_days))
+plt.ylabel("Frequency")
+plt.tight_layout()
+plt.show()
