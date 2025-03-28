@@ -1,0 +1,65 @@
+import numpy as np
+import random
+from tqdm import trange
+
+# Grid size
+grid_size = 1000
+
+# Tree states
+UNBURNT = 0
+BURNING = 1
+BURNT = 2
+
+# Simulation parameters
+max_time_steps = 200
+ignite_prob = 1.0  # Deterministic ignition of neighbors
+
+# Initialize grid
+grid = np.full((grid_size, grid_size), UNBURNT, dtype=np.uint8)
+burn_time = np.zeros((grid_size, grid_size), dtype=np.uint8)
+
+# Randomly select one tree to start burning
+initial_x = random.randint(0, grid_size - 1)
+initial_y = random.randint(0, grid_size - 1)
+grid[initial_x, initial_y] = BURNING
+
+# Directions for 8-connected neighbors
+neighbors = [(-1, -1), (-1, 0), (-1, 1),
+             ( 0, -1),          ( 0, 1),
+             ( 1, -1), ( 1, 0), ( 1, 1)]
+
+# Run the simulation
+time_step = 0
+for t in trange(max_time_steps):
+    new_grid = grid.copy()
+    burning_found = False
+
+    for x in range(grid_size):
+        for y in range(grid_size):
+            if grid[x, y] == BURNING:
+                burning_found = True
+                burn_time[x, y] += 1
+                if burn_time[x, y] >= 1:
+                    new_grid[x, y] = BURNT
+                for dx, dy in neighbors:
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < grid_size and 0 <= ny < grid_size:
+                        if grid[nx, ny] == UNBURNT and random.random() < ignite_prob:
+                            new_grid[nx, ny] = BURNING
+
+    grid = new_grid
+    time_step += 1
+
+    if not burning_found:
+        break
+
+# Count final states
+unburnt_count = np.sum(grid == UNBURNT)
+burning_count = np.sum(grid == BURNING)
+burnt_count = np.sum(grid == BURNT)
+
+# Print results
+print(f"Simulation ended after {time_step} time steps.")
+print(f"Unburnt trees: {unburnt_count}")
+print(f"Burning trees: {burning_count}")
+print(f"Burnt trees: {burnt_count}")
