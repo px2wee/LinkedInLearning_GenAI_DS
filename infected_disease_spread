@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+population = 1000
+initial_infected = 1
+initial_recovered = 0
+transmission_prob = 0.03  # Probability of transmission per contact
+recovery_rate = 0.01       # Probability of recovery per hour
+simulation_hours = 500
+
+# Initial counts
+S = population - initial_infected - initial_recovered
+I = initial_infected
+R = initial_recovered
+
+# Store results
+susceptible = [S]
+infected = [I]
+recovered = [R]
+
+# Simulation loop
+for hour in range(simulation_hours):
+    new_infections = np.random.binomial(S, 1 - (1 - transmission_prob) ** I)
+    new_recoveries = np.random.binomial(I, recovery_rate)
+
+    S = max(0, S - new_infections)
+    I = max(0, I + new_infections - new_recoveries)
+    R = min(population, R + new_recoveries)
+
+    susceptible.append(S)
+    infected.append(I)
+    recovered.append(R)
+
+# Visualization
+plt.figure(figsize=(12, 6))
+plt.plot(susceptible, label='Susceptible', color='blue')
+plt.plot(infected, label='Infected', color='red')
+plt.plot(recovered, label='Recovered', color='green')
+plt.title("SIR Model of Infectious Disease Spread")
+plt.xlabel("Hours")
+plt.ylabel("Number of People")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
